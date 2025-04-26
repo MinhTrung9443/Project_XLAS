@@ -1,0 +1,7 @@
+joblib
+streamlit
+opencv-python-headless
+tensorflow~=2.15.0
+cvzone
+opencv-python
+mediapipe
