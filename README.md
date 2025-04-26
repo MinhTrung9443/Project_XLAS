@@ -38,9 +38,6 @@ The web application has been partially deployed here: [Web App Link](https://tuo
 
 ### 👨‍🎓 Students
 
-- **Full name**: Lê Đình Trí
-  - **ID**: 22110442
-  - ![GitHub](https://img.icons8.com/ios-filled/20/000000/github.png) [GitHub]()
-  - ![Facebook](https://img.icons8.com/ios-filled/20/000000/facebook--v1.png) [Facebook]()
+- **Full name**: Phạm Minh Trung
+  - **ID**: 22110446
   - ![Email](https://img.icons8.com/ios-filled/20/000000/email.png) minhtrungbttv@gmail.com
-  - ![Phone](https://img.icons8.com/ios-filled/20/000000/phone.png) <img src="https://media.tenor.com/TAqs38FFJiwAAAAi/loading.gif" width="40" height="40" />
