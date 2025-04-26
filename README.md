@@ -24,7 +24,7 @@ The web application has been partially deployed here: [Web App Link](https://tuo
 
 - Add missing files that are so large that we can't upload to github the usual way:
 
-  Dowwnload [missing file](https://drive.google.com/file/d/1QPbVsPli9WcL3OZWV15fgVYSHoj2HNkj/view?usp=sharing) and put it into pages/modeldoituong/modelobject
+  Dowwnload [missing file](https://drive.google.com/file/d/1CTwCnWoYPfnVstak0IXideS_V2tfqxf1/view?usp=sharing) and put it into pages/modeldoituong/modelobject
 
 #### Step 3: Run the Application
 
