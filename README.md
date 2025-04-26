@@ -1,13 +1,5 @@
 # 🎓 Project Xử Lý Ảnh Số (Digital image processing)
 
-## 🌐 Web Application
-
-The web application has been partially deployed here: [Web App Link](https://tuoithodakhoc.streamlit.app/)
-
-⏳ It may take some time to wake it up if it is sleeping.
-
----
-
 ## 🔧 Setup Instructions
 
 ### Option 1: Use the Deployed Web Application
