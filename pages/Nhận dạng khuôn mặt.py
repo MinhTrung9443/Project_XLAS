@@ -22,7 +22,7 @@ if press:
 print('Trang thai nhan Stop', st.session_state.stop)
 
 if 'frame_stop' not in st.session_state:
-    frame_stop = cv.imread('stop.jpg')
+    frame_stop = cv.imread('pages\model\stop.jpg')
     st.session_state.frame_stop = frame_stop
     print('Đã load stop.jpg')
 
