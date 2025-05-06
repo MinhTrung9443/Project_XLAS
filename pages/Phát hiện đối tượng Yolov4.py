@@ -38,7 +38,7 @@ st.markdown("""
 
 # Tải danh sách lớp
 classes = None
-with open(r"D:\HK2_NAM3\Xu_li_anh_so\ProjectXuLyAnhSo-main\pages\modeldoituong\modelobject\object_detection_classes_yolov4.txt", 'rt') as f:
+with open(r"pages\modeldoituong\modelobject\object_detection_classes_yolov4.txt", 'rt') as f:
     classes = f.read().rstrip('\n').split('\n')
 
 # Tải mô hình YOLOv4
