@@ -1,12 +1,17 @@
 import base64
 import streamlit as st
 from streamlit.components.v1 import html # Use this explicitly if needed, but st.html is often sufficient
-
 st.set_page_config(
     page_title="Final Project",
     page_icon="✨",
     layout="wide" # Use wide layout for better spacing
 )
+try:
+    st.sidebar.image("images/logo_hcmute.png", use_container_width=True)
+except FileNotFoundError:
+    st.sidebar.error("Không tìm thấy file logo. Vui lòng kiểm tra đường dẫn.")
+except Exception as e:
+    st.sidebar.error(f"Lỗi khi tải logo: {e}")
 
 # --- START: Modified HTML/CSS Block (Kept mostly same as last version, added bottom margin) ---
 html_content_new = """
