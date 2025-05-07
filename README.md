@@ -31,5 +31,10 @@
 ### 👨‍🎓 Students
 
 - **Full name**: Phạm Minh Trung
+
   - **ID**: 22110446
-  - ![Email](https://img.icons8.com/ios-filled/20/000000/email.png) minhtrungbttv@gmail.com
+  - ![Email](https://img.icons8.com/ios-filled/20/000000/email.png) 22110446@student.hcmute.edu.vn
+
+  - **Full name**: Nguyễn Thị Hồng Nhung
+  - **ID**: 22110391
+  - ![Email](https://img.icons8.com/ios-filled/20/000000/email.png) 22110397@student.hcmute.edu.vn
