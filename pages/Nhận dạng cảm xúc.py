@@ -60,7 +60,6 @@ def detect_emotion(img):
             })
     
     return img, results
-
 # Giao diện chính
 def main():
     st.title("🎭 Nhận diện Cảm xúc Khuôn mặt")
@@ -72,23 +71,45 @@ def main():
         st.subheader("Nhận diện từ Webcam")
         st.write("Nhấn nút bên dưới để bắt đầu sử dụng webcam")
         
+        # Tạo nút bật/tắt webcam
         run = st.checkbox("Bật Webcam")
-        FRAME_WINDOW = st.image([])
+        
+        # Tạo layout hai cột
+        col1, col2 = st.columns(2)
+        
+        # Tạo hai khung hình
+        with col1:
+            st.write("Camera trái")
+            LEFT_FRAME_WINDOW = st.image([])
+            
+        with col2:
+            st.write("Camera phải")
+            RIGHT_FRAME_WINDOW = st.image([])
+        
+        # Mở camera
         camera = cv2.VideoCapture(0)
         
+        # Xử lý khung hình
         while run:
-            _, frame = camera.read()
+            # Đọc khung hình từ camera
+            ret, frame = camera.read()
             if frame is None:
                 continue
                 
-            # Chuyển đổi màu và nhận diện
-            frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-            processed_frame, _ = detect_emotion(cv2.cvtColor(frame, cv2.COLOR_RGB2BGR))
-            processed_frame = cv2.cvtColor(processed_frame, cv2.COLOR_BGR2RGB)
+            # Chuyển đổi màu sang RGB cho khung hình gốc
+            rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
             
-            # Hiển thị ảnh
-            FRAME_WINDOW.image(processed_frame)
+            # Hiển thị khung hình gốc (bên trái)
+            LEFT_FRAME_WINDOW.image(rgb_frame)
+            
+            # Xử lý nhận diện cảm xúc
+            processed_frame, _ = detect_emotion(frame)  # Đã là BGR nên không cần chuyển đổi
+            processed_rgb = cv2.cvtColor(processed_frame, cv2.COLOR_BGR2RGB)
+            
+            # Hiển thị khung hình đã xử lý (bên phải)
+            RIGHT_FRAME_WINDOW.image(processed_rgb)
         
+        # Giải phóng camera khi dừng
         camera.release()
         
     else:

@@ -30,7 +30,7 @@ print('Trang thai nhan Stop', st.session_state.stop)
 if 'frame_stop' not in st.session_state:
     frame_stop = cv.imread('stop.jpg')
     st.session_state.frame_stop = frame_stop
-    print('Đã load stop.jpg')
+    print('Da load stop.jpg')
 
 if st.session_state.stop == True:
     FRAME_WINDOW.image(st.session_state.frame_stop, channels='BGR')
