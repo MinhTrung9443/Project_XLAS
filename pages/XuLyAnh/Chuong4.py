@@ -3,89 +3,29 @@ import cv2
 L = 256
 
 def Spectrum(imgin):
-    M, N = imgin.shape
-    P = cv2.getOptimalDFTSize(M)
-    Q = cv2.getOptimalDFTSize(N)
-    
-    # Bước 1 và 2: 
-    # Tạo ảnh mới có kích thước PxQ
-    # và thêm số 0 và phần mở rộng
-    fp = np.zeros((P,Q), np.float32)
-    fp[:M,:N] = imgin
-    fp = fp/(L-1)
+    f  = imgin.astype(np.float32)/(L-1)
+    #Buoc1: DFT
+    F = np.fft.fft2(f)
+    #Buoc2: Shift vao the center of the inmage
+    F = np.fft.fftshift(F)
 
-    # Bước 3:
-    # Nhân (-1)^(x+y) để dời vào tâm ảnh
-    for x in range(0, M):
-        for y in range(0, N):
-            if (x+y) % 2 == 1:
-                fp[x,y] = -fp[x,y]
-
-    # Bước 4:
-    # Tính DFT    
-    F = cv2.dft(fp, flags = cv2.DFT_COMPLEX_OUTPUT)
-
-    # Tính spectrum
-    S = np.sqrt(F[:,:,0]**2 + F[:,:,1]**2)
+    #Buoc5: Tinh Spectrum
+    S = np.sqrt(F.real**2, + F.imag**2)
     S = np.clip(S, 0, L-1)
-    S = S.astype(np.uint8)
-    return S
+    imgout = S.astype(np.uint8)
 
-def FrequencyFilter(imgin):
-    M, N = imgin.shape
-    P = cv2.getOptimalDFTSize(M)
-    Q = cv2.getOptimalDFTSize(N)
-    
-    # Bước 1 và 2: 
-    # Tạo ảnh mới có kích thước PxQ
-    # và thêm số 0 vào phần mở rộng
-    fp = np.zeros((P,Q), np.float32)
-    fp[:M,:N] = imgin
-
-    # Bước 3:
-    # Nhân (-1)^(x+y) để dời vào tâm ảnh
-    for x in range(0, M):
-        for y in range(0, N):
-            if (x+y) % 2 == 1:
-                fp[x,y] = -fp[x,y]
-    # Bước 4:
-    # Tính DFT    
-    F = cv2.dft(fp, flags = cv2.DFT_COMPLEX_OUTPUT)
-
-    # Bước 5: 
-    # Tạo bộ lọc H thực High Pass Butterworth
-    H = np.zeros((P,Q), np.float32)
-    D0 = 60
-    n = 2
-    for u in range(0, P):
-        for v in range(0, Q):
-            Duv = np.sqrt((u-P//2)**2 + (v-Q//2)**2)
-            if Duv > 0:
-                H[u,v] = 1.0/(1.0 + np.power(D0/Duv,2*n))
-    # Bước 6:
-    # G = F*H nhân từng cặp
-    G = F.copy()
-    for u in range(0, P):
-        for v in range(0, Q):
-            G[u,v,0] = F[u,v,0]*H[u,v]
-            G[u,v,1] = F[u,v,1]*H[u,v]
-    
-    # Bước 7:
-    # IDFT
-    g = cv2.idft(G, flags = cv2.DFT_SCALE)
-    # Lấy phần thực
-    gp = g[:,:,0]
-    # Nhân với (-1)^(x+y)
-    for x in range(0, P):
-        for y in range(0, Q):
-            if (x+y)%2 == 1:
-                gp[x,y] = -gp[x,y]
-    # Bước 8:
-    # Lấy kích thước ảnh ban đầu
-    imgout = gp[0:M,0:N]
-    imgout = np.clip(imgout,0,L-1)
-    imgout = imgout.astype(np.uint8)
     return imgout
+
+def FrequencyFilter(imgin, H):
+    f = imgin.astype(np.float32)
+    F = np.fft.fft2(f)
+    F = np.fft.fftshift(F)
+    G = F * H
+    G = np.fft.ifftshift(G)
+    g = np.fft.ifft2(G)
+    gR = g.real.copy()
+    gR = np.clip(gR, 0, L-1)
+    return gR.astype(np.uint8)
 
 def CreateNotchRejectFilter():
     P = 250
@@ -157,52 +97,180 @@ def DrawNotchRejectFilter():
     H = H.astype(np.uint8)
     return H
     
-def RemoveMoire(imgin):
-    M, N = imgin.shape
-    P = cv2.getOptimalDFTSize(M)
-    Q = cv2.getOptimalDFTSize(N)
-    
-    # Bước 1 và 2: 
-    # Tạo ảnh mới có kích thước PxQ
-    # và thêm số 0 vào phần mở rộng
-    fp = np.zeros((P,Q), np.float32)
-    fp[:M,:N] = imgin
+def CreateMoireFilter(M, N):
+    H = np.ones((M, N), np.complex64)
+    H.imag = 0.0
 
-    # Bước 3:
-    # Nhân (-1)^(x+y) để dời vào tâm ảnh
-    for x in range(0, M):
-        for y in range(0, N):
-            if (x+y) % 2 == 1:
-                fp[x,y] = -fp[x,y]
-    # Bước 4:
-    # Tính DFT    
-    F = cv2.dft(fp, flags = cv2.DFT_COMPLEX_OUTPUT)
+    u1, v1 = 44, 55
+    u2, v2 = 85, 55 
+    u3, v3 = 41, 111
+    u4, v4 = 81, 111
 
-    # Bước 5: 
-    # Tạo bộ lọc NotchReject 
-    H = CreateNotchRejectFilter()
-    # Bước 6:
-    # G = F*H nhân từng cặp
-    G = F.copy()
-    for u in range(0, P):
-        for v in range(0, Q):
-            G[u,v,0] = F[u,v,0]*H[u,v]
-            G[u,v,1] = F[u,v,1]*H[u,v]
+
+    u5, v5 = M - 44, M - 55
+    u6, v6 = M - 85, M - 55 
+    u7, v7 = M - 41, M - 111
+    u8, v8 = M - 81, M - 111
+
+
+
+    D0 = 7
+    for u in range(0, M):
+        for v in range(0, N):
+            #u1, v1
+            Duv = np.sqrt((u-u1)**2 + (v - v1)**2)
+            if Duv <= D0:
+                H.real[u, v] = 0.0
+            #u2, v2
+            Duv = np.sqrt((u-u2)**2 + (v - v2)**2)
+            if Duv <= D0:
+                H.real[u, v] = 0.0
+            #u3, v3
+            Duv = np.sqrt((u-u3)**2 + (v - v3)**2)
+            if Duv <= D0:
+                H.real[u, v] = 0.0
+            #u4, v4
+            Duv = np.sqrt((u-u4)**2 + (v - v4)**2)
+            if Duv <= D0:
+                H.real[u, v] = 0.0
+            #u5, v5
+            Duv = np.sqrt((u-u5)**2 + (v - v5)**2)
+            if Duv <= D0:
+                H.real[u, v] = 0.0
+            #u6, v6
+            Duv = np.sqrt((u-u6)**2 + (v - v6)**2)
+            if Duv <= D0:
+                H.real[u, v] = 0.0
+            #u7, v7
+            Duv = np.sqrt((u-u7)**2 + (v - v7)**2)
+            if Duv <= D0:
+                H.real[u, v] = 0.0
+            #u8, v8
+            Duv = np.sqrt((u-u8)**2 + (v - v8)**2)
+            if Duv <= D0:
+                H.real[u, v] = 0.0
     
-    
-    # Bước 7:
-    # IDFT
-    g = cv2.idft(G, flags = cv2.DFT_SCALE)
-    # Lấy phần thực
-    gp = g[:,:,0]
-    # Nhân với (-1)^(x+y)
-    for x in range(0, P):
-        for y in range(0, Q):
-            if (x+y)%2 == 1:
-                gp[x,y] = -gp[x,y]
-    # Bước 8:
-    # Lấy kích thước ảnh ban đầu
-    imgout = gp[0:M,0:N]
-    imgout = np.clip(imgout,0,L-1)
-    imgout = imgout.astype(np.uint8)
+    return H
+
+def FrequencyFiltering(imgin, H):
+    f  = imgin.astype(np.float32)
+    #Buoc1: DFT
+    F = np.fft.fft2(f)
+    #Buoc2: Shift vao the center of the inmage
+    F = np.fft.fftshift(F)
+    #Buoc3: Nhan F voi H
+    G = F*H
+
+    #Buoc4: Shift return
+    G = np.fft.ifftshift(G)
+
+    #Buoc5: IDFT
+    g = np.fft.ifft2(G)
+    gR = np.clip(g.real, 0, L-1)
+    imgout = gR.astype(np.uint8)
+
     return imgout
+
+def CreateInferenceFilter(M, N):
+    H = np.ones((M,N), np.complex64)
+    D0 = 7
+    for u in range(M):
+        for v in range(N):
+            if u not in range(M//2-D0, M//2+D0+1):
+                if v in range(N//2-D0, N//2+D0+1):
+                    H[u,v] = 0.0
+    return H
+
+def CreateMotionFilter(M, N):
+    H = np.zeros((M, N), np.complex64)
+    T = 1.0
+    a = 0.1
+    b = 0.1
+    phi_prev = 0.0
+    for u in range(0, M):
+        for v in range(0, N):
+            phi = np.pi*((u-M//2)*a + (v-N//2)*b)
+            if abs(phi) < 1.0e-6:
+                phi = phi_prev
+                
+            else:
+                RE = T*np.sin(phi)*np.cos(phi)/phi
+                IM = -T*np.sin(phi)*np.sin(phi)/phi
+            H.real[u, v] = RE
+            H.imag[u, v] = IM
+            phi_prev = phi
+    
+    return H
+
+def CreateDemotionFilter(M, N):
+    H = np.zeros((M, N), np.complex64)
+    T = 1.0
+    a = 0.1
+    b = 0.1
+    phi_prev = 0.0
+    for u in range(0, M):
+        for v in range(0, N):
+            phi = np.pi*((u-M//2)*a + (v-N//2)*b)
+            mau_so = np.sin(phi)
+
+            if abs(mau_so) < 1.0e-6:
+                phi = phi_prev
+                
+            
+            RE = phi/(T*np.sin(phi))*np.cos(phi)
+            IM = phi/T
+            H.real[u, v] = RE
+            H.imag[u, v] = IM
+            phi_prev = phi
+    
+    return H
+
+def CreateNotchFilter(P,Q):
+    H = np.ones((P,Q), np.complex64)
+    coords = [(44, 55), (85, 55), (40, 112), (81, 112)]
+    D0 = 10
+    for u in range(P):
+        for v in range(Q):
+            for (ui, vi) in coords + [(P-ui, Q-vi) for (ui, vi) in coords]:
+                d = np.sqrt((u - ui)**2 + (v - vi)**2)
+                if d < D0:
+                    H[u,v] = 0
+    return H
+
+def RemoveMorie(imgin):
+    M, N = imgin.shape
+    H = CreateNotchFilter(M, N)
+    imgout = FrequencyFiltering(imgin, H)
+    return imgout
+
+def RemoveInference(imgin):
+    M, N = imgin.shape
+    H = CreateInferenceFilter(M, N)
+    imgout = FrequencyFiltering(imgin, H)
+    return imgout
+
+
+def CreateMotion(imgin):
+    M, N = imgin.shape
+    H = CreateMotionFilter(M,N)
+    imgout = FrequencyFilter(imgin, H)
+    return imgout
+
+
+def CreateDeMotion(imgin):
+    M, N = imgin.shape
+    H = CreateDemotionFilter(M, N)
+    imgout = FrequencyFiltering(imgin, H)
+    return imgout
+
+
+def CreateWeinerFilter(M,N):
+    H = CreateDemotionFilter(M,N)
+    P = H.real**2 + H.imag**2
+    K = -0.5
+    return H * P / (P + K)
+
+def DeMotionWeiner(imgin):
+    M, N = imgin.shape
+    H = CreateWeinerFilter(M,N)
+    return FrequencyFilter(imgin, H)

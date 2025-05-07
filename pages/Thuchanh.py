@@ -8,7 +8,6 @@ sys.path.append('pages/XuLyAnh')
 
 import Chuong3 as c3 # type: ignore
 import Chuong4 as c4 # type: ignore
-import Chuong5 as c5 # type: ignore
 import Chuong9 as c9 # type: ignore
 import StreamlitColorNew as stCN # type: ignore
 
@@ -56,7 +55,7 @@ def main():
             mime="application/zip"
     )
         
-    menu = st.sidebar.selectbox("Menu", ("Chuong3", "Chuong4", "Chuong5", "Chuong9"))
+    menu = st.sidebar.selectbox("Menu", ("Chuong3", "Chuong4", "Chuong9"))
     if menu == "Chuong3":
         menu = st.sidebar.selectbox("Menu", ("GRAYSCALE Image", "Color Image"))
         if menu=="GRAYSCALE Image":
@@ -66,8 +65,6 @@ def main():
 
     if menu == "Chuong4":
         chuong4()
-    if menu=="Chuong5":
-        chuong5()
     if menu=="Chuong9":
         chuong9()
 
@@ -140,6 +137,26 @@ def chuong3():
             st.session_state.caption= "HistStat Image"
             display_image(col2, st.session_state.imgout, "HistStat Image")
 
+        if buttons_layout[1].button("Sharpening"):
+            st.session_state.imgout = c3.Sharpening(st.session_state.imgin)
+            st.session_state.caption= "Sharpening Image"
+            display_image(col2, st.session_state.imgout, "Sharpening Image")
+        
+        if buttons_layout[2].button("MySharpeningMask"):
+            st.session_state.imgout = c3.MySharpeningMask(st.session_state.imgin)
+            st.session_state.caption= "MySharpeningMask Image"
+            display_image(col2, st.session_state.imgout, "MySharpeningMask Image")
+        
+        if buttons_layout[3].button("SharpeningMask"):
+            st.session_state.imgout = c3.SharpeningMask(st.session_state.imgin)
+            st.session_state.caption= "SharpeningMask Image"
+            display_image(col2, st.session_state.imgout, "SharpeningMask Image")
+            
+        if buttons_layout[0].button("Grandient"):
+            st.session_state.imgout = c3.Grandient(st.session_state.imgin)
+            st.session_state.caption= "Grandient Image"
+            display_image(col2, st.session_state.imgout, "Grandient Image")
+
         if buttons_layout[1].button("MyBoxFilter"):
             st.session_state.imgout = c3.MyBoxFilter(st.session_state.imgin)
             st.session_state.caption= "MyBoxFilter Image"
@@ -202,69 +219,52 @@ def chuong4():
             st.markdown('<h4 style="color: black;">Output Image</h4>', unsafe_allow_html=True)
             
         st.markdown('<h4 style="color: black;">Button</h4>', unsafe_allow_html=True)
-        buttons_layout = st.columns(3)
+        buttons_layout = st.columns(4)
 
         if buttons_layout[0].button("Spectrum"):
             st.session_state.imgout = c4.Spectrum(st.session_state.imgin)
             st.session_state.caption= "Spectrum Image"
-            display_image(col2, st.session_state.imgout, "Spectrum Image")
-
-        if buttons_layout[1].button("FrequencyFilter"):
-            st.session_state.imgout = c4.FrequencyFilter(st.session_state.imgin)
-            st.session_state.caption= "FrequencyFilter Image"
-            display_image(col2, st.session_state.imgout, "FrequencyFilter Image")  
+            display_image(col2, st.session_state.imgout, "Spectrum Image")  
         
-        if buttons_layout[2].button("RemoveMoire"):
-            st.session_state.imgout = c4.RemoveMoire(st.session_state.imgin)
+        if buttons_layout[1].button("RemoveMoire"):
+            st.session_state.imgout = c4.RemoveMorie(st.session_state.imgin)
             st.session_state.caption= "RemoveMoire Image"
             display_image(col2, st.session_state.imgout, "RemoveMoire Image") 
-
-    if st.sidebar.button("Download Image"):
-        if st.session_state.imgout is not None:
-            download(st.session_state.imgout,file_uploaded)
-        else:
-            st.sidebar.warning("Không có ảnh đầu ra để tải xuống.")
-def chuong5():
-    st.markdown('<h3 style="color: black;">Chương 5</h3>', unsafe_allow_html=True)
-    st.markdown('<h4 style="color: black;">Upload an image</h4>', unsafe_allow_html=True)
-    file_uploaded = st.file_uploader("", type=["jpg", "jpeg", "png", "tif"])
-
-    if file_uploaded is not None:
-        image = np.array(bytearray(file_uploaded.read()), dtype=np.uint8)
-        st.session_state.imgin = cv2.imdecode(image, cv2.IMREAD_GRAYSCALE)
-        col1, col_mid,col2= st.columns([3, 3, 3])
-        with col1:
-            st.markdown('<h4 style="color: black;">Input Image</h4>', unsafe_allow_html=True)
-            st.image(st.session_state.imgin, use_column_width=True)
-        with col_mid:
-            st.image("images/muiten.gif",use_column_width=True)
-            st.image("images/muiten.gif",use_column_width=True)
-        with col2:
-            st.markdown('<h4 style="color: black;">Output Image</h4>', unsafe_allow_html=True)
-        buttons_layout = st.columns(3)
-        st.markdown('<h4 style="color: black;">Button</h4>', unsafe_allow_html=True)
-
-        if buttons_layout[0].button("CreateMotionNoise"):
-            st.session_state.imgout = c5.CreateMotionNoise(st.session_state.imgin)
-            st.session_state.caption= "CreateMotionNoise Image"
-            display_image(col2, st.session_state.imgout, "CreateMotionNoise Image")  
         
-        if buttons_layout[1].button("DenoiseMotion"):
-            st.session_state.imgout = c5.DenoiseMotion(st.session_state.imgin)
-            st.session_state.caption= "DenoiseMotion Image"
-            display_image(col2, st.session_state.imgout, "DenoiseMotion Image") 
 
-        if buttons_layout[2].button("DenoisestMotion"):
-            st.session_state.temp = cv2.medianBlur(st.session_state.imgin, 7)
-            st.session_state.imgout =c5.DenoiseMotion(st.session_state.temp)
-            st.session_state.caption= "DenoisestMotion Image"
-            display_image(col2, st.session_state.imgout, "DenoisestMotion Image") 
+        if buttons_layout[2].button("RemoveInference"):
+            st.session_state.imgout = c4.RemoveInference(st.session_state.imgin)
+            st.session_state.caption= "RemoveInference Image"
+            display_image(col2, st.session_state.imgout, "RemoveInference Image")  
+        
+        if buttons_layout[3].button("CreateMotion"):
+            st.session_state.imgout = c4.CreateMotion(st.session_state.imgin)
+            st.session_state.caption= "CreateMotion Image"
+            display_image(col2, st.session_state.imgout, "CreateMotion Image") 
+        
+        if buttons_layout[0].button("DeMotionNoise"):
+            temp = cv2.medianBlur(st.session_state.imgin,7)
+            st.session_state.imgout = c4.CreateDeMotion(temp)
+            st.session_state.caption= "Spectrum Image"
+            display_image(col2, st.session_state.imgout, "Spectrum Image")  
+        
+        if buttons_layout[1].button("DeMotionWeiner"):
+            st.session_state.imgout = c4.DeMotionWeiner(st.session_state.imgin)
+            st.session_state.caption= "DeMotionWeiner Image"
+            display_image(col2, st.session_state.imgout, "DeMotionWeiner Image") 
+        
+        
+        if buttons_layout[2].button("DeMotion"):
+            st.session_state.imgout = c4.CreateDeMotion(st.session_state.imgin)
+            st.session_state.caption= "CreateDeMotion Image"
+            display_image(col2, st.session_state.imgout, "CreateDeMotion Image") 
 
     if st.sidebar.button("Download Image"):
         if st.session_state.imgout is not None:
             download(st.session_state.imgout,file_uploaded)
         else:
             st.sidebar.warning("Không có ảnh đầu ra để tải xuống.")
+
 def chuong9():
     st.markdown('<h3 style="color: black;">Chương 9</h3>', unsafe_allow_html=True)
     st.markdown('<h4 style="color: black;">Upload an image</h4>', unsafe_allow_html=True)
@@ -295,11 +295,37 @@ def chuong9():
             st.session_state.caption= "ConnectedComponen Image"
             display_image(col2, st.session_state.imgout, "ConnectedComponen Image")  
 
-        if buttons_layout[2].button("CountRice"):
-            st.session_state.imgout = c9.CountRice(st.session_state.imgin)
-            st.session_state.caption= "CountRice Image"
-            display_image(col2, st.session_state.imgout, "CountRice Image")
+        
+        if buttons_layout[0].button("Erosion"):
+            st.session_state.imgout = c9.Erosion(st.session_state.imgin)
+            st.session_state.caption= "Erosion Image"
+            display_image(col2, st.session_state.imgout, "Erosion Image")
 
+        if buttons_layout[1].button("Dilation"):
+            st.session_state.imgout = c9.Dilation(st.session_state.imgin)
+            st.session_state.caption= "Dilation Image"
+            display_image(col2, st.session_state.imgout, "Dilation Image")  
+
+        if buttons_layout[2].button("Contour"):
+            st.session_state.imgout = c9.Contour(st.session_state.imgin)
+            st.session_state.caption= "Contour Image"
+            display_image(col2, st.session_state.imgout, "Contour Image")
+            
+        if buttons_layout[0].button("ConvexHull"):
+            st.session_state.imgout = c9.ConvexHull(st.session_state.imgin)
+            st.session_state.caption= "ConvexHull Image"
+            display_image(col2, st.session_state.imgout, "ConvexHull Image")
+
+        if buttons_layout[1].button("DefectDetect"):
+            st.session_state.imgout = c9.DefectDetect(st.session_state.imgin)
+            st.session_state.caption= "DefectDetect Image"
+            display_image(col2, st.session_state.imgout, "DefectDetect Image")  
+
+        if buttons_layout[2].button("removeSmallRice"):
+            st.session_state.imgout = c9.removeSmallRice(st.session_state.imgin)
+            st.session_state.caption= "removeSmallRice Image"
+            display_image(col2, st.session_state.imgout, "removeSmallRice Image")
+            
     if st.sidebar.button("Download Image"):
         if st.session_state.imgout is not None:
             download(st.session_state.imgout,file_uploaded)
