@@ -1,19 +1,36 @@
 import base64
 import streamlit as st
-from streamlit.components.v1 import html # Use this explicitly if needed, but st.html is often sufficient
+from streamlit.components.v1 import html
+
 st.set_page_config(
     page_title="Final Project",
     page_icon="✨",
-    layout="wide" # Use wide layout for better spacing
+    layout="wide"
 )
-try:
-    st.sidebar.image("images/logo_hcmute.png", use_container_width=True)
-except FileNotFoundError:
-    st.sidebar.error("Không tìm thấy file logo. Vui lòng kiểm tra đường dẫn.")
-except Exception as e:
-    st.sidebar.error(f"Lỗi khi tải logo: {e}")
 
-# --- START: Modified HTML/CSS Block (Kept mostly same as last version, added bottom margin) ---
+# --- Thêm logo vào đầu nội dung chính và căn giữa bằng CSS ---
+try:
+    st.image("images/logo_hcmute.png", width=200, caption="", output_format="PNG")  # Bỏ use_column_width
+    # Thêm CSS để căn giữa logo
+    st.markdown(
+        """
+        <style>
+        div.stImage {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-left: 350px;
+        }
+        </style>
+        """,
+        unsafe_allow_html=True
+    )
+except FileNotFoundError:
+    st.error("Không tìm thấy file logo. Vui lòng kiểm tra đường dẫn.")
+except Exception as e:
+    st.error(f"Lỗi khi tải logo: {e}")
+
+# --- HTML/CSS Block ---
 html_content_new = """
 <!DOCTYPE html>
 <html lang="en">
@@ -30,15 +47,16 @@ html_content_new = """
 
         .container {
             background: transparent;
-            height: 300px; /* Fixed height to match st.html height */
+            height: 300px;
             width: 95%; max-width: 777px;
             display: flex;
-            justify-content: center; /* Center horizontally */
-            align-items: center; /* Center vertically */
-            flex-direction: row; /* Arrange children in a row */
-            position: relative; /* Needed for absolute positioning of h1 */
-            margin: 20px auto; /* Added top/bottom margin (20px) and auto left/right for centering */
-            overflow: hidden; /* Hide anything spilling out */
+            justify-content: center;
+            align-items: center;
+            flex-direction: row;
+            position: relative;
+            margin: 20px auto;
+            overflow: hidden;
+            margin-left: 80px;
         }
 
         .container div {
@@ -82,15 +100,15 @@ html_content_new = """
             transform: translate(-50%, -50%);
             white-space: nowrap;
             z-index: 1;
-             /* Adjust font size for smaller screens if needed */
             @media (max-width: 768px) {
                 font-size: 2em;
                 white-space: normal;
                 width: 90%;
             }
-             @media (max-width: 480px) {
+            @media (max-width: 480px) {
                 font-size: 1.5em;
             }
+            margin-left: 20px;
         }
 
         @keyframes subtleSway {
@@ -109,7 +127,6 @@ html_content_new = """
         .container div.div4 { animation-delay: 1.5s; }
         .container div.div5 { animation-delay: 1s; }
         .container div.div6 { animation-delay: 1.7s; }
-
     </style>
 </head>
 <body>
@@ -127,12 +144,10 @@ html_content_new = """
 """
 
 # Display the HTML banner
-html(html_content_new, height=340, width=777) # Increased height slightly to account for new margin
-
+html(html_content_new, height=340, width=777)
 
 # Function to add background image
 def add_bg_from_local(image_file):
-    """Adds a background image from a local file."""
     try:
         with open(image_file, "rb") as image_file:
             encoded_string = base64.b64encode(image_file.read())
@@ -155,86 +170,59 @@ def add_bg_from_local(image_file):
     except Exception as e:
         st.error(f"An error occurred while setting the background image: {e}")
 
-
 # Call the background function
 add_bg_from_local('images/Home.jpg')
 
 # Sidebar styling
-st.sidebar.success("You can choose one of my projects above.") # Keep the sidebar success message
+st.sidebar.success("You can choose one of my projects above.")
 st.markdown("""
 <style>
     [data-testid=stSidebar] {
-        background-color: #e0e7ef; /* Purple */
+        background-color: #e0e7ef;
     }
-    /* Optional: Style sidebar links/text color if needed */
-    /*
-    [data-testid=stSidebar] .st-emotion-cache-vk3up2 { /* Target the text container */
-        color: #333; /* Darken sidebar text */
-    }
-    */
 </style>
 """, unsafe_allow_html=True)
 
-
-# Custom CSS for text and spacing in the main content markdown
+# Custom CSS for text and spacing
 st.markdown(
     """
     <style>
-    /* Style for the 'Wishing everyone...' text */
     .intro-text {
-        /* color: red; /* Original red color */
-        color: #333333; /* Example: Dark Purple */
-        /* color: #006400; /* Example: Dark Green */
+        color: #333333;
         font-weight: bold;
-        margin-top: 30px; /* Add space above this text */
-        margin-bottom: 20px; /* Add space below this text */
-        font-size: 1.1em; /* Slightly larger font */
+        margin-top: 30px;
+        margin-bottom: 20px;
+        font-size: 1.1em;
     }
 
-    /* Add spacing around the headings and member boxes */
     .member-section h3 {
-        margin-top: 15px; /* Space above member name */
-        margin-bottom: 5px; /* Space below member name */
+        margin-top: 15px;
+        margin-bottom: 5px;
     }
     .member-section ul {
-        margin-top: 5px; /* Space above list */
-        padding-bottom: 0; /* Remove default bottom padding */
-    }
-    .member-section li {
-        margin-bottom: 5px; /* Space between list items */
-    }
-    .teacher-section h3 {
-         margin-top: 15px;
-         margin-bottom: 5px;
-    }
-     .teacher-section ul {
         margin-top: 5px;
         padding-bottom: 0;
     }
-     .teacher-section li {
+    .member-section li {
         margin-bottom: 5px;
     }
-
-    /* Target the main markdown container to add overall spacing */
-    /* This class name might change in future Streamlit versions */
-    /* Safer ways involve wrapping markdown content in st.container() or adding more specific CSS classes */
-    .st-emotion-cache-uczq2p { /* Adjust padding-top if needed, depends on banner height */
-       /* padding-top: 20px; */ /* Removed this as margin on .container and .intro-text handle spacing */
+    .teacher-section h3 {
+        margin-top: 15px;
+        margin-bottom: 5px;
     }
-
-
+    .teacher-section ul {
+        margin-top: 5px;
+        padding-bottom: 0;
+    }
+    .teacher-section li {
+        margin-bottom: 5px;
+    }
     </style>
     """,
     unsafe_allow_html=True
 )
 
-# Balloons (reduced to 1 call for less clutter)
-st.spinner()
-# st.balloons() # Comment out or remove these two lines
-# st.balloons()
-
 # Markdown block with introduction and team information
-# Added a class 'intro-text' to the wishing div for styling
 st.markdown(
 """
 <div class="intro-text">
